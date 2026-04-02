@@ -135,8 +135,8 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   className={cn(
                     "w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition-all text-sm",
                     multiSelections.includes(option)
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border bg-secondary/50 text-muted-foreground hover:border-primary/50 hover:bg-secondary"
+                      ? "border-primary bg-white text-gray-900"
+                      : "border-gray-300 bg-white/90 text-gray-800 hover:border-primary/50 hover:bg-white"
                   )}
                 >
                   <div className="flex items-center gap-3">
