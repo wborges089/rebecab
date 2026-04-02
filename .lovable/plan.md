@@ -1,78 +1,46 @@
 
 
-## Painel Admin: Paginas de Vendas, Trafego e CRM
+## Dashboard com Graficos + Menu Lateral no Admin
 
-### Escopo
+### Mudancas
 
-Transformar o admin atual (apenas lista de leads) em um painel completo com 3 abas:
-1. **Leads** — o que ja existe
-2. **Paginas de Vendas** — cadastro de paginas + metricas de trafego
-3. **CRM** — pipeline Kanban + visao tabela com valores de negociacao
+**1. Layout: Tabs superiores → Sidebar lateral**
 
-### Sobre a integracao Meta/Google Ads
+Substituir o layout atual (header + Tabs) por um layout com `SidebarProvider` + `Sidebar` do shadcn. O sidebar tera 4 itens:
+- Dashboard (novo — graficos de visao geral)
+- Leads
+- Paginas de Vendas
+- CRM
 
-A integracao direta com Meta Ads e Google Ads exige credenciais OAuth e apps aprovados nessas plataformas, o que e um processo demorado. Como primeira versao, vou implementar **entrada manual dos dados de trafego** (visitas, cliques, custo, plataforma) para cada pagina. Futuramente podemos adicionar integracao via API.
+No mobile, o sidebar colapsa e um `SidebarTrigger` fica visivel no header. Botao "Sair" vai para o rodape do sidebar.
 
----
+**2. Nova secao Dashboard com graficos**
 
-### 1. Novas tabelas no banco
+Componente `AdminDashboard.tsx` com:
+- **Grafico de linha**: evolucao de leads captados por dia (ultimos 30 dias), agrupados por `created_at`
+- **Grafico de barras**: trafego (visitas + cliques) por dia, dados de `traffic_entries`
+- **Grafico de pizza**: distribuicao de leads por score (quente/morno/frio)
+- **Cards resumo**: total leads, total visitas, custo total, deals em aberto
+- Filtro de periodo (7d, 15d, 30d)
 
-**`sales_pages`** — paginas de vendas cadastradas
-- `id` (uuid), `name` (text), `url` (text), `platform` (text — instagram, google, facebook, etc), `created_at`
+Usa `recharts` (ja instalado via shadcn chart) com `ChartContainer` e `ChartTooltipContent`.
 
-**`traffic_entries`** — registros de trafego por pagina/periodo
-- `id` (uuid), `sales_page_id` (fk), `date` (date), `visits` (int), `clicks` (int), `cost` (numeric), `platform` (text), `created_at`
+**3. Reestruturacao do Admin.tsx**
 
-**`deals`** — negociacoes do CRM
-- `id` (uuid), `lead_id` (fk para leads), `sales_page_id` (fk opcional), `title` (text), `value` (numeric), `stage` (text — novo, em_negociacao, proposta, fechado, perdido), `notes` (text), `created_at`, `updated_at`
+Em vez de Tabs, usa estado `activeSection` controlado pelo sidebar. Cada secao renderiza o componente correspondente. Auth check permanece igual.
 
-Todas com RLS permitindo apenas admins (usando `has_role`).
-
-Adicionar coluna `sales_page_id` (nullable, fk) na tabela `leads` para associar leads a paginas.
-
-### 2. Layout do Admin com abas
-
-Reestruturar `Admin.tsx` usando `Tabs` (ja disponivel no projeto):
-- **Aba Leads** — conteudo atual (contadores + filtros + tabela)
-- **Aba Paginas** — CRUD de paginas + metricas de trafego por pagina
-- **Aba CRM** — Kanban + tabela de deals
-
-### 3. Aba Paginas de Vendas
-
-**Componente `SalesPages.tsx`:**
-- Lista de paginas cadastradas em cards
-- Botao "Nova Pagina" abre dialog com campos: nome, URL, plataforma
-- Ao clicar numa pagina, mostra:
-  - Metricas resumidas (total visitas, custo, leads captados daquela pagina)
-  - Formulario para adicionar entrada de trafego (data, visitas, cliques, custo)
-  - Tabela com historico de entradas
-
-### 4. Aba CRM
-
-**Componente `CrmPipeline.tsx`:**
-- Toggle entre visao Kanban e visao Tabela
-- **Kanban**: colunas por stage (Novo, Em Negociacao, Proposta, Fechado, Perdido) com cards arrastáveis mostrando nome do lead, valor e pagina de origem
-- **Tabela**: lista de deals com colunas (Lead, Pagina, Valor, Stage, Data) + totalizador de valor por stage
-- Botao "Novo Deal" associa um lead existente, define valor e stage
-- Editar stage e valor inline ou via dialog
-
-### 5. Arquivos criados/editados
+### Arquivos
 
 | Arquivo | Acao |
 |---|---|
-| Migration SQL | Criar tabelas `sales_pages`, `traffic_entries`, `deals` + RLS |
-| `src/pages/Admin.tsx` | Adicionar Tabs (Leads, Paginas, CRM) |
-| `src/components/SalesPages.tsx` | CRUD paginas + metricas trafego |
-| `src/components/TrafficEntryForm.tsx` | Form para registrar trafego |
-| `src/components/CrmPipeline.tsx` | Kanban + tabela de deals |
-| `src/components/DealCard.tsx` | Card do deal no Kanban |
-| `src/components/DealDialog.tsx` | Dialog para criar/editar deal |
-| `src/components/LeadTable.tsx` | Sem alteracao |
+| `src/pages/Admin.tsx` | Reescrever: SidebarProvider + Sidebar + conteudo por secao |
+| `src/components/AdminSidebar.tsx` | Novo: sidebar com navegacao e logout |
+| `src/components/AdminDashboard.tsx` | Novo: graficos de leads e trafego com recharts |
 
 ### Detalhes tecnicos
 
-- Drag-and-drop no Kanban usando `@dnd-kit/core` (leve, sem dependencias pesadas)
-- Totalizadores calculados no frontend a partir dos dados carregados
-- Leads associados a paginas via `sales_page_id` (nullable para retrocompatibilidade)
-- Todas as queries protegidas por RLS admin
+- Graficos usam `ChartContainer`, `ChartTooltip`, `ChartTooltipContent` de `@/components/ui/chart`
+- Recharts: `LineChart`, `BarChart`, `PieChart` do pacote `recharts` (ja disponivel)
+- Dados agrupados no frontend por dia usando reduce sobre `leads` e `traffic_entries`
+- Sidebar com `collapsible="icon"` para modo mini no mobile
 
