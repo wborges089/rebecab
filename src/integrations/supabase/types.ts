@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      deals: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string | null
+          notes: string | null
+          sales_page_id: string | null
+          stage: string
+          title: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          sales_page_id?: string | null
+          stage?: string
+          title: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          sales_page_id?: string | null
+          stage?: string
+          title?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_sales_page_id_fkey"
+            columns: ["sales_page_id"]
+            isOneToOne: false
+            referencedRelation: "sales_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           created_at: string
@@ -22,6 +73,7 @@ export type Database = {
           lead_score: string | null
           name: string
           quiz_answers: Json | null
+          sales_page_id: string | null
           source: string | null
           whatsapp: string
         }
@@ -32,6 +84,7 @@ export type Database = {
           lead_score?: string | null
           name: string
           quiz_answers?: Json | null
+          sales_page_id?: string | null
           source?: string | null
           whatsapp: string
         }
@@ -42,10 +95,84 @@ export type Database = {
           lead_score?: string | null
           name?: string
           quiz_answers?: Json | null
+          sales_page_id?: string | null
           source?: string | null
           whatsapp?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "leads_sales_page_id_fkey"
+            columns: ["sales_page_id"]
+            isOneToOne: false
+            referencedRelation: "sales_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_pages: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          platform: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          platform?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          platform?: string
+          url?: string | null
+        }
         Relationships: []
+      }
+      traffic_entries: {
+        Row: {
+          clicks: number
+          cost: number
+          created_at: string
+          date: string
+          id: string
+          platform: string | null
+          sales_page_id: string
+          visits: number
+        }
+        Insert: {
+          clicks?: number
+          cost?: number
+          created_at?: string
+          date?: string
+          id?: string
+          platform?: string | null
+          sales_page_id: string
+          visits?: number
+        }
+        Update: {
+          clicks?: number
+          cost?: number
+          created_at?: string
+          date?: string
+          id?: string
+          platform?: string | null
+          sales_page_id?: string
+          visits?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "traffic_entries_sales_page_id_fkey"
+            columns: ["sales_page_id"]
+            isOneToOne: false
+            referencedRelation: "sales_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

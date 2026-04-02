@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadTable from "@/components/LeadTable";
-import { LogOut } from "lucide-react";
+import SalesPages from "@/components/SalesPages";
+import CrmPipeline from "@/components/CrmPipeline";
+import { LogOut, Users, Globe, DollarSign } from "lucide-react";
 
 type Lead = {
   id: string;
@@ -27,42 +30,21 @@ const Admin = () => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/admin/login");
-        return;
-      }
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin");
-
-      if (!roles || roles.length === 0) {
-        await supabase.auth.signOut();
-        navigate("/admin/login");
-        return;
-      }
+      if (!user) { navigate("/admin/login"); return; }
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin");
+      if (!roles || roles.length === 0) { await supabase.auth.signOut(); navigate("/admin/login"); return; }
       fetchLeads();
     };
     checkAuth();
   }, [navigate]);
 
   const fetchLeads = async () => {
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setLeads(data as Lead[]);
-    }
+    const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
+    if (!error && data) setLeads(data as Lead[]);
     setLoading(false);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
+  const handleLogout = async () => { await supabase.auth.signOut(); navigate("/admin/login"); };
 
   const filteredLeads = leads.filter((l) => {
     if (filterScore && l.lead_score !== filterScore) return false;
@@ -90,68 +72,72 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-foreground">Painel de Leads</h1>
+        <h1 className="text-xl font-bold text-foreground">Painel Admin</h1>
         <Button variant="ghost" size="sm" onClick={handleLogout}>
           <LogOut className="h-4 w-4 mr-2" /> Sair
         </Button>
       </header>
 
-      <div className="max-w-6xl mx-auto p-4 space-y-6">
-        {/* Counters */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{counts.total}</p>
-            <p className="text-xs text-muted-foreground">Total</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-red-400">{counts.quente}</p>
-            <p className="text-xs text-muted-foreground">Quentes 🔥</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-400">{counts.morno}</p>
-            <p className="text-xs text-muted-foreground">Mornos</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-blue-400">{counts.frio}</p>
-            <p className="text-xs text-muted-foreground">Frios</p>
-          </div>
-        </div>
+      <div className="max-w-6xl mx-auto p-4">
+        <Tabs defaultValue="leads" className="space-y-4">
+          <TabsList className="w-full md:w-auto">
+            <TabsTrigger value="leads" className="flex items-center gap-1">
+              <Users className="h-4 w-4" /> Leads
+            </TabsTrigger>
+            <TabsTrigger value="pages" className="flex items-center gap-1">
+              <Globe className="h-4 w-4" /> Páginas
+            </TabsTrigger>
+            <TabsTrigger value="crm" className="flex items-center gap-1">
+              <DollarSign className="h-4 w-4" /> CRM
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={filterScore === null ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilterScore(null)}
-          >
-            Todos
-          </Button>
-          {["quente", "morno", "frio"].map((s) => (
-            <Button
-              key={s}
-              variant={filterScore === s ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterScore(filterScore === s ? null : s)}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </Button>
-          ))}
+          <TabsContent value="leads" className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-foreground">{counts.total}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-red-400">{counts.quente}</p>
+                <p className="text-xs text-muted-foreground">Quentes 🔥</p>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-yellow-400">{counts.morno}</p>
+                <p className="text-xs text-muted-foreground">Mornos</p>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-blue-400">{counts.frio}</p>
+                <p className="text-xs text-muted-foreground">Frios</p>
+              </div>
+            </div>
 
-          <span className="border-l border-border mx-2" />
+            <div className="flex flex-wrap gap-2">
+              <Button variant={filterScore === null ? "default" : "outline"} size="sm" onClick={() => setFilterScore(null)}>Todos</Button>
+              {["quente", "morno", "frio"].map((s) => (
+                <Button key={s} variant={filterScore === s ? "default" : "outline"} size="sm" onClick={() => setFilterScore(filterScore === s ? null : s)}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </Button>
+              ))}
+              <span className="border-l border-border mx-2" />
+              {uniqueSources.map((src) => (
+                <Badge key={src} variant={filterSource === src ? "default" : "outline"} className="cursor-pointer" onClick={() => setFilterSource(filterSource === src ? null : src)}>
+                  {src}
+                </Badge>
+              ))}
+            </div>
 
-          {uniqueSources.map((src) => (
-            <Badge
-              key={src}
-              variant={filterSource === src ? "default" : "outline"}
-              className="cursor-pointer"
-              onClick={() => setFilterSource(filterSource === src ? null : src)}
-            >
-              {src}
-            </Badge>
-          ))}
-        </div>
+            <LeadTable leads={filteredLeads} />
+          </TabsContent>
 
-        <LeadTable leads={filteredLeads} />
+          <TabsContent value="pages">
+            <SalesPages />
+          </TabsContent>
+
+          <TabsContent value="crm">
+            <CrmPipeline />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
