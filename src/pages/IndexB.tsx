@@ -38,7 +38,7 @@ const IndexB = () => {
         className="relative w-full min-h-[50vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center top' }}
       >
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-background/50" />
         <div className="relative z-10 text-center px-4 py-16 space-y-4 max-w-3xl">
           <h1 className="text-3xl md:text-5xl font-extrabold text-foreground leading-tight">
             Descubra o Método que está{" "}
