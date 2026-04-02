@@ -1,26 +1,18 @@
 
 
-## Teste A/B - Versão B da Landing Page
+## Tornar a Versão B Responsiva
 
-### Resumo
-Criar uma segunda landing page (`/b`) com layout diferente e foto de fundo esmaecida, mantendo a mesma lógica de CTA com timer de 60 segundos e o mesmo popup de captura de leads.
+### Problema
+No desktop (telas largas), a foto de fundo com `bg-cover` fica distorcida/sobreposta ao conteúdo porque o hero tem altura fixa (`min-h-[50vh]`) e o `mt-[30vh]` empurra o texto para fora. Em telas grandes a imagem estica demais.
 
-### Versão B - Diferenças
-- **Foto como background**: A foto do especialista será usada como imagem de fundo em tela cheia, com overlay escuro (esmaecida), em vez de circular no hero
-- **Layout centralizado**: Headline e subtítulo sobrepostos à foto de fundo, centralizados
-- **Vídeo player** abaixo do hero com background, mantendo o mesmo comportamento de timer
-- **Mesmo CTA e popup** de captura de leads (reutiliza o componente `LeadCaptureDialog`)
+### Solução
+Ajustar o hero para funcionar bem em mobile e desktop:
 
-### Alterações técnicas
+1. **Hero section** — usar alturas responsivas: `min-h-[50vh] md:min-h-[60vh]` e margem top responsiva `mt-[25vh] md:mt-[35vh]` para que o texto fique abaixo do rosto em ambos os tamanhos
+2. **Background position** — usar `background-position: center 20%` para que o rosto fique visível tanto em mobile quanto desktop
+3. **Texto** — ajustar `max-w-3xl md:max-w-4xl` e padding lateral maior no desktop (`px-4 md:px-8`)
+4. **Limitar largura da imagem de fundo** — adicionar `background-size: cover` com um container que limita a proporção no desktop, ou usar `md:min-h-[50vh]` para evitar esticamento excessivo
 
-1. **Criar `src/pages/IndexB.tsx`**
-   - Layout full-width com a foto como `background-image` no hero, com overlay escuro semi-transparente
-   - Headline e texto centralizados sobre o background
-   - Player de vídeo e CTA abaixo, mesma lógica de 60 segundos
-   - Reutiliza `LeadCaptureDialog`
-
-2. **Atualizar `src/App.tsx`**
-   - Adicionar rota `/b` apontando para `IndexB`
-
-Ambas as páginas compartilham o mesmo componente de captura, facilitando comparar resultados no `localStorage`.
+### Arquivo editado
+- `src/pages/IndexB.tsx` — ajustes de classes responsivas no hero e no container de texto
 
