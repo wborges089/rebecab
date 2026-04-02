@@ -1,16 +1,97 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
+import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const REVEAL_SECONDS = 60;
+
+const Index = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [showCTA, setShowCTA] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handlePlay = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying || showCTA) return;
+    const interval = setInterval(() => {
+      setElapsed((prev) => {
+        const next = prev + 1;
+        if (next >= REVEAL_SECONDS) {
+          setShowCTA(true);
+          clearInterval(interval);
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPlaying, showCTA]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-3xl mx-auto space-y-8">
+        {/* Headline */}
+        <div className="text-center space-y-3">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-foreground leading-tight">
+            Descubra o Método que Está<br />
+            <span className="text-primary">Transformando Resultados</span>
+          </h1>
+          <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto">
+            Assista ao vídeo completo e descubra como você pode começar ainda hoje.
+          </p>
+        </div>
+
+        {/* Video Player Placeholder */}
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-card shadow-2xl">
+          {!isPlaying ? (
+            <button
+              onClick={handlePlay}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-card/80 backdrop-blur-sm cursor-pointer group transition-all"
+            >
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                <Play className="w-10 h-10 text-primary ml-1" />
+              </div>
+              <span className="text-muted-foreground text-sm">Clique para assistir</span>
+            </button>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-card">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-muted-foreground text-sm">Reproduzindo vídeo...</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex flex-col items-center gap-3 min-h-[80px]">
+          {isPlaying && !showCTA && (
+            <p className="text-muted-foreground text-sm animate-pulse">
+              Continue assistindo... uma oferta especial está chegando ⏳
+            </p>
+          )}
+          <div
+            className={`transition-all duration-700 ${
+              showCTA ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+            }`}
+          >
+            <Button
+              size="lg"
+              onClick={() => setDialogOpen(true)}
+              className="text-lg md:text-xl px-10 py-7 font-bold bg-primary text-primary-foreground hover:bg-primary/90 animate-pulse-glow rounded-xl"
+            >
+              🔥 Quero Começar Agora
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <LeadCaptureDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
