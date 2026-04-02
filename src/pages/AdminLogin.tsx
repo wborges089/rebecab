@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import heroPhoto from "@/assets/photo-hero.png";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +25,6 @@ const AdminLogin = () => {
       return;
     }
 
-    // Check if user has admin role
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       toast({ title: "Erro de autenticação", variant: "destructive" });
@@ -49,8 +49,16 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="min-h-screen relative flex items-center justify-center px-4">
+      {/* Background photo */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroPhoto})` }}
+      />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-background/75" />
+
+      <div className="relative z-10 w-full max-w-sm space-y-6 bg-card/80 backdrop-blur-sm rounded-xl p-6 border border-border">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-foreground">Backoffice</h1>
           <p className="text-muted-foreground text-sm">Acesse o painel administrativo</p>
@@ -66,7 +74,7 @@ const AdminLogin = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@email.com"
               required
-              className="bg-secondary border-border text-foreground"
+              className="bg-white text-gray-900 border-gray-300 placeholder:text-gray-400"
             />
           </div>
           <div className="space-y-2">
@@ -78,7 +86,7 @@ const AdminLogin = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="bg-secondary border-border text-foreground"
+              className="bg-white text-gray-900 border-gray-300 placeholder:text-gray-400"
             />
           </div>
           <Button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
