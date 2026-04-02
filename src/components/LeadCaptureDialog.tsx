@@ -62,8 +62,11 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
       return;
     }
 
+    setIsSubmitting(true);
     const source = getSource();
     const id = crypto.randomUUID();
+
+    console.log("Submitting lead...", { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, ""), source });
 
     const { error } = await supabase.from("leads").insert({
       id,
@@ -74,13 +77,16 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
     });
 
     if (error) {
-      console.error("Error inserting lead:", error);
-      toast({ title: "Erro ao salvar dados. Tente novamente.", variant: "destructive" });
+      console.error("Insert error:", JSON.stringify(error));
+      toast({ title: `Erro: ${error.message}`, variant: "destructive" });
+      setIsSubmitting(false);
       return;
     }
 
+    console.log("Lead inserted successfully:", id);
     setLeadId(id);
     setPhase("quiz");
+    setIsSubmitting(false);
   };
 
   const handleQuizComplete = async (answers: Record<string, string | string[]>) => {
