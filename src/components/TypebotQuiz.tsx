@@ -121,7 +121,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
           animating ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0"
         )}
       >
-        <h3 className="text-lg font-semibold text-foreground text-center mb-5 leading-snug">
+        <h3 className="text-base md:text-lg font-semibold text-foreground text-center mb-4 md:mb-5 leading-snug">
           {question.question}
         </h3>
 
@@ -133,7 +133,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   type="button"
                   onClick={() => handleMultiToggle(option)}
                   className={cn(
-                    "w-full text-left px-4 py-3 rounded-lg border transition-all text-sm",
+                    "w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition-all text-sm",
                     multiSelections.includes(option)
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border bg-secondary/50 text-muted-foreground hover:border-primary/50 hover:bg-secondary"
@@ -153,7 +153,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   key={option}
                   type="button"
                   onClick={() => handleSingleSelect(option)}
-                  className="w-full text-left px-4 py-3 rounded-lg border border-border bg-secondary/50 text-muted-foreground hover:border-primary hover:bg-primary/10 hover:text-foreground transition-all text-sm"
+                  className="w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border border-border bg-secondary/50 text-muted-foreground hover:border-primary hover:bg-primary/10 hover:text-foreground transition-all text-sm"
                 >
                   {option}
                 </button>
