@@ -1,74 +1,47 @@
 
 
-## Questionario Interativo + Backoffice com IA
+## Diagnóstico e Correção do Formulário de Cadastro
 
-### 1. Questionario Interativo (estilo Typebot)
+### Problema identificado
+Os logs do console não mostram erros de submissão, o que indica que o formulário pode estar falhando silenciosamente ou o botão de submit não está disparando corretamente no mobile (viewport 390px).
 
-Apos o lead preencher nome/email/WhatsApp, em vez da tela de sucesso, inicia um fluxo de perguntas uma por vez com animacao de transicao suave (slide/fade). Cada pergunta ocupa a tela inteira do dialog.
+### Possíveis causas
+1. O insert no banco pode estar falhando sem feedback visual adequado ao usuário
+2. O botão "Quero Garantir Minha Vaga" com `animate-pulse-glow` pode estar com algum conflito de CSS que impede o clique no mobile
+3. O estado de loading não existe — se o usuário clica duas vezes, pode causar erro de email duplicado
 
-**Componente `TypebotQuiz`** — exibe uma pergunta por vez com opcoes clicaveis (cards/botoes). Ao clicar, avanca automaticamente para a proxima. Progresso visual no topo (barra ou dots).
+### Correções planejadas
 
-**Perguntas:**
-1. Como consegue novos pacientes/clientes? (selecao unica)
-2. Estrutura de captacao funcionando? (multipla selecao + botao "Continuar")
-3. Faturamento mensal atual? (selecao unica)
-4. Maior desafio para crescer? (selecao unica)
-5. Disposto a investir? (selecao unica)
+**`src/components/LeadCaptureDialog.tsx`**:
+- Adicionar estado `isSubmitting` para desabilitar o botão durante o envio e evitar duplo-clique
+- Adicionar `console.log` antes e depois do insert para capturar o erro exato nos logs
+- Melhorar feedback de erro com a mensagem real do Supabase no toast
+- Garantir que o botão submit funcione corretamente removendo `animate-pulse-glow` do botão dentro do dialog (pode interferir com pointer events)
 
-Ao finalizar, salva as respostas junto com o lead no Supabase e exibe a tela de sucesso.
+### Detalhes técnicos
 
-### 2. Supabase — Tabelas
+```typescript
+// Adicionar estado de loading
+const [isSubmitting, setIsSubmitting] = useState(false);
 
-- **`leads`** — id, name, email, whatsapp, source (utm_source ou pathname: "instagram", "pagina_a", "pagina_b"), quiz_answers (jsonb), lead_score (text: "frio"/"morno"/"quente"), created_at
-- **`user_roles`** — para controle de acesso admin ao backoffice (seguindo o padrao de seguranca com enum + funcao `has_role`)
+// No handleSubmit:
+setIsSubmitting(true);
+console.log("Submitting lead...", { name, email, whatsapp, source });
 
-**Origem do lead**: capturada automaticamente via `utm_source` da URL (ex: `?utm_source=instagram`) ou pelo pathname (`/` = pagina A, `/b` = pagina B). Salva no campo `source`.
+const { error } = await supabase.from("leads").insert({...});
 
-### 3. Classificacao com IA (Lovable AI)
+if (error) {
+  console.error("Insert error:", JSON.stringify(error));
+  setIsSubmitting(false);
+  // mostrar error.message no toast
+  return;
+}
 
-Edge function `classify-lead` que recebe as respostas do quiz e usa Lovable AI para classificar o lead como Frio, Morno ou Quente com base nas respostas. Salva o resultado no campo `lead_score` da tabela `leads`.
-
-Criterios gerais para a IA:
-- Quente: faturamento alto + disposto a investir + desafio claro
-- Morno: tem estrutura parcial + interesse mas com ressalvas
-- Frio: sem estrutura + sem interesse imediato
-
-### 4. Backoffice (`/admin`)
-
-- **Pagina de login** simples com email/senha (Supabase Auth)
-- **Dashboard protegido** com:
-  - Tabela de leads com colunas: Nome, Email, WhatsApp, Origem, Score (tag colorida), Data
-  - Filtros por score (Frio/Morno/Quente) e por origem
-  - Contadores no topo (total leads, quentes, mornos, frios)
-  - Expandir lead para ver respostas completas do quiz
-
-### 5. Arquivos a criar/editar
-
-**Novos:**
-- `src/components/TypebotQuiz.tsx` — questionario interativo
-- `src/pages/Admin.tsx` — dashboard do backoffice
-- `src/pages/AdminLogin.tsx` — login do admin
-- `src/components/LeadTable.tsx` — tabela de leads
-- `supabase/functions/classify-lead/index.ts` — classificacao com IA
-- Migration: tabelas `leads`, `user_roles`, RLS policies
-
-**Editados:**
-- `src/components/LeadCaptureDialog.tsx` — apos submit, inicia o quiz em vez de mostrar sucesso. Captura `utm_source` e pathname como origem
-- `src/App.tsx` — adicionar rotas `/admin` e `/admin/login`
-
-### 6. Fluxo completo
-
-```text
-Visitante chega (com utm_source ou via /b)
-  → Assiste video → Clica CTA
-  → Preenche nome/email/WhatsApp
-  → Quiz interativo (5 perguntas, uma por vez)
-  → Dados salvos no Supabase
-  → Edge function classifica lead com IA
-  → Tela de sucesso
-
-Admin acessa /admin
-  → Login com email/senha
-  → Dashboard com leads, scores e filtros
+// No botão:
+disabled={isSubmitting}
+// Texto muda para "Enviando..." enquanto submete
 ```
+
+### Arquivo editado
+- `src/components/LeadCaptureDialog.tsx`
 
