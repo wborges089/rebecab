@@ -36,7 +36,7 @@ const IndexB = () => {
       {/* Hero with background photo */}
       <div
         className="relative w-full min-h-[50vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroPhoto})` }}
+        style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center 70%' }}
       >
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
         <div className="relative z-10 text-center px-4 py-16 space-y-4 max-w-3xl">
