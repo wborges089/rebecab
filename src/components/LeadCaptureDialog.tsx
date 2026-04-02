@@ -4,17 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import TypebotQuiz from "@/components/TypebotQuiz";
 
 interface LeadCaptureDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const getSource = (): string => {
+  const params = new URLSearchParams(window.location.search);
+  const utmSource = params.get("utm_source");
+  if (utmSource) return utmSource;
+  const path = window.location.pathname;
+  if (path === "/b") return "pagina_b";
+  if (path === "/") return "pagina_a";
+  return "direto";
+};
+
+type Phase = "form" | "quiz" | "success";
+
 const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [phase, setPhase] = useState<Phase>("form");
+  const [leadId, setLeadId] = useState<string | null>(null);
 
   const formatWhatsApp = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -30,7 +45,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidWhatsApp = (wp: string) => wp.replace(/\D/g, "").length >= 10;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
@@ -46,20 +61,46 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
       return;
     }
 
-    const lead = { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, "") };
-    const existing = JSON.parse(localStorage.getItem("leads") || "[]");
-    existing.push({ ...lead, createdAt: new Date().toISOString() });
-    localStorage.setItem("leads", JSON.stringify(existing));
+    const source = getSource();
 
-    setSubmitted(true);
+    const { data, error } = await supabase.from("leads").insert({
+      name: name.trim(),
+      email: email.trim(),
+      whatsapp: whatsapp.replace(/\D/g, ""),
+      source,
+    }).select("id").single();
+
+    if (error) {
+      console.error("Error inserting lead:", error);
+      toast({ title: "Erro ao salvar dados. Tente novamente.", variant: "destructive" });
+      return;
+    }
+
+    setLeadId(data.id);
+    setPhase("quiz");
+  };
+
+  const handleQuizComplete = async (answers: Record<string, string | string[]>) => {
+    if (!leadId) return;
+
+    // Update lead with quiz answers
+    await supabase.from("leads").update({ quiz_answers: answers as any }).eq("id", leadId);
+
+    // Classify lead with AI (fire and forget)
+    supabase.functions.invoke("classify-lead", {
+      body: { leadId, quizAnswers: answers },
+    }).catch((err) => console.error("Classification error:", err));
+
+    setPhase("success");
   };
 
   const handleClose = (val: boolean) => {
     if (!val) {
-      setSubmitted(false);
+      setPhase("form");
       setName("");
       setEmail("");
       setWhatsapp("");
+      setLeadId(null);
     }
     onOpenChange(val);
   };
@@ -67,7 +108,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md bg-card border-border">
-        {submitted ? (
+        {phase === "success" ? (
           <div className="text-center py-6 space-y-4">
             <div className="text-5xl">🎉</div>
             <DialogTitle className="text-2xl font-bold text-foreground">Cadastro realizado!</DialogTitle>
@@ -76,6 +117,18 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
               Fechar
             </Button>
           </div>
+        ) : phase === "quiz" ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-foreground text-center">
+                Só mais algumas perguntas rápidas 🚀
+              </DialogTitle>
+              <DialogDescription className="text-center text-muted-foreground">
+                Nos ajude a entender seu momento para personalizar sua experiência.
+              </DialogDescription>
+            </DialogHeader>
+            <TypebotQuiz onComplete={handleQuizComplete} />
+          </>
         ) : (
           <>
             <DialogHeader>
