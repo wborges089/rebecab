@@ -153,7 +153,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   key={option}
                   type="button"
                   onClick={() => handleSingleSelect(option)}
-                  className="w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border border-border bg-secondary/50 text-muted-foreground hover:border-primary hover:bg-primary/10 hover:text-foreground transition-all text-sm"
+                  className="w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border border-gray-300 bg-white/90 text-gray-800 hover:border-primary hover:bg-white hover:text-gray-900 transition-all text-sm"
                 >
                   {option}
                 </button>
