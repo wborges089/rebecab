@@ -85,7 +85,7 @@ Responda APENAS com uma palavra: quente, morno ou frio.`;
 
     const { error: updateError } = await supabase
       .from("leads")
-      .update({ lead_score: score })
+      .update({ lead_score: score, quiz_answers: quizAnswers })
       .eq("id", leadId);
 
     if (updateError) {
