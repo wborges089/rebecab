@@ -35,14 +35,13 @@ const IndexB = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Hero with background photo */}
       <div
-        className="relative w-full min-h-[50vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        className="relative w-full min-h-[70vh] flex items-end justify-center bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center top' }}
       >
         <div className="absolute inset-0 bg-background/50" />
-        <div className="relative z-10 text-center px-4 py-16 space-y-4 max-w-3xl">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-foreground leading-tight">
-            Descubra o Método que está{" "}
-            <span className="text-primary">Transformando Resultados</span>
+        <div className="relative z-10 text-center px-4 pb-10 pt-4 space-y-4 max-w-3xl">
+          <h1 className="text-2xl md:text-4xl font-extrabold text-foreground leading-tight">
+            Se você é <span className="text-primary">médico ou advogado</span>, vou te mostrar o caminho para ter uma agenda cheia de pacientes e clientes qualificados e começar a <span className="text-primary">faturar com previsibilidade</span> todos os meses.
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl">
             Assista ao vídeo completo e descubra como você pode começar ainda hoje.
