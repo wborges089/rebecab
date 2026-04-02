@@ -133,7 +133,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   type="button"
                   onClick={() => handleMultiToggle(option)}
                   className={cn(
-                    "w-full text-left px-4 py-3 rounded-lg border transition-all text-sm",
+                    "w-full text-left px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition-all text-sm",
                     multiSelections.includes(option)
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border bg-secondary/50 text-muted-foreground hover:border-primary/50 hover:bg-secondary"
