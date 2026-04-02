@@ -1,25 +1,26 @@
 
 
-## VSL Landing Page com Captura de Leads
+## Teste A/B - Versão B da Landing Page
 
-### Página Principal
-- **Layout dark** como padrão (fácil de trocar cores da marca depois)
-- **Headline** chamativa acima do vídeo
-- **Player de vídeo** centralizado com placeholder (pronto para trocar pela URL real)
-- **Botão CTA** abaixo do vídeo — **oculto inicialmente**, aparece após **60 segundos** com animação suave de fade-in
-- **Contador visual** sutil mostrando que algo vai aparecer (opcional, gera curiosidade)
+### Resumo
+Criar uma segunda landing page (`/b`) com layout diferente e foto de fundo esmaecida, mantendo a mesma lógica de CTA com timer de 60 segundos e o mesmo popup de captura de leads.
 
-### Popup de Captura de Lead
-- Abre ao clicar no botão CTA
-- **Campos**: Nome, Email, WhatsApp
-- Validação nos campos (formato de email, WhatsApp com máscara)
-- Botão de envio com texto persuasivo (ex: "Quero Garantir Minha Vaga")
-- Mensagem de sucesso após envio
-- Os dados ficam armazenados localmente por enquanto (pronto para integrar com backend depois)
+### Versão B - Diferenças
+- **Foto como background**: A foto do especialista será usada como imagem de fundo em tela cheia, com overlay escuro (esmaecida), em vez de circular no hero
+- **Layout centralizado**: Headline e subtítulo sobrepostos à foto de fundo, centralizados
+- **Vídeo player** abaixo do hero com background, mantendo o mesmo comportamento de timer
+- **Mesmo CTA e popup** de captura de leads (reutiliza o componente `LeadCaptureDialog`)
 
-### Detalhes de UX
-- Página responsiva (mobile e desktop)
-- O botão CTA pulsa/anima para chamar atenção quando aparece
-- O timer de 60s conta a partir do momento que o vídeo começa a rodar
-- Design minimalista focado na conversão — sem distrações
+### Alterações técnicas
+
+1. **Criar `src/pages/IndexB.tsx`**
+   - Layout full-width com a foto como `background-image` no hero, com overlay escuro semi-transparente
+   - Headline e texto centralizados sobre o background
+   - Player de vídeo e CTA abaixo, mesma lógica de 60 segundos
+   - Reutiliza `LeadCaptureDialog`
+
+2. **Atualizar `src/App.tsx`**
+   - Adicionar rota `/b` apontando para `IndexB`
+
+Ambas as páginas compartilham o mesmo componente de captura, facilitando comparar resultados no `localStorage`.
 
