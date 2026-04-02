@@ -35,11 +35,11 @@ const IndexB = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Hero with background photo */}
       <div
-        className="relative w-full min-h-[50vh] flex items-center justify-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center top' }}
+        className="relative w-full min-h-[50vh] md:min-h-[60vh] flex items-center justify-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center 20%' }}
       >
         <div className="absolute inset-0 bg-background/50" />
-        <div className="relative z-10 text-center px-4 py-6 space-y-4 max-w-3xl mt-[30vh]">
+        <div className="relative z-10 text-center px-4 md:px-8 py-6 space-y-4 max-w-3xl md:max-w-4xl mt-[25vh] md:mt-[35vh]">
           <h1 className="md:text-4xl font-extrabold text-foreground leading-tight text-center font-serif text-xl">
             Se você é <span className="text-primary">médico ou advogado</span>, vou te mostrar o caminho para ter uma agenda cheia de pacientes e clientes qualificados e começar a <span className="text-primary">faturar com previsibilidade</span> todos os meses.
           </h1>
