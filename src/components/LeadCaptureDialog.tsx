@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import TypebotQuiz from "@/components/TypebotQuiz";
+import { CheckCircle2 } from "lucide-react";
 
 interface LeadCaptureDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onFormComplete?: () => void;
 }
 
 const getSource = (): string => {
@@ -24,7 +26,7 @@ const getSource = (): string => {
 
 type Phase = "form" | "quiz" | "success";
 
-const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
+const LeadCaptureDialog = ({ open, onOpenChange, onFormComplete }: LeadCaptureDialogProps) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -92,12 +94,12 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const handleQuizComplete = async (answers: Record<string, string | string[]>) => {
     if (!leadId) return;
 
-    // Send quiz answers to edge function which will update and classify
     supabase.functions.invoke("classify-lead", {
       body: { leadId, quizAnswers: answers },
     }).catch((err) => console.error("Classification error:", err));
 
     setPhase("success");
+    onFormComplete?.();
   };
 
   const handleClose = (val: boolean) => {
@@ -113,12 +115,18 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="w-[95vw] max-w-md max-h-[90vh] overflow-y-auto bg-card border-border">
         {phase === "success" ? (
-          <div className="text-center py-6 space-y-4">
-            <div className="text-5xl">🎉</div>
-            <DialogTitle className="text-2xl font-bold text-foreground">Cadastro realizado!</DialogTitle>
-            <p className="text-muted-foreground">Em breve entraremos em contato com você.</p>
+          <div className="text-center py-8 space-y-4">
+            <CheckCircle2 className="w-16 h-16 text-primary mx-auto" />
+            <DialogTitle className="text-2xl font-bold text-foreground">Obrigado, {name.split(" ")[0]}! 🎉</DialogTitle>
+            <p className="text-muted-foreground text-base leading-relaxed">
+              Recebemos seus dados com sucesso!<br />
+              Nossa equipe vai entrar em contato em breve pelo WhatsApp.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Fique de olho no seu celular 📱
+            </p>
             <Button onClick={() => handleClose(false)} className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90">
               Fechar
             </Button>
@@ -126,10 +134,10 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
         ) : phase === "quiz" ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-foreground text-center">
+              <DialogTitle className="text-lg md:text-xl font-bold text-foreground text-center">
                 Só mais algumas perguntas rápidas 🚀
               </DialogTitle>
-              <DialogDescription className="text-center text-muted-foreground">
+              <DialogDescription className="text-center text-muted-foreground text-sm">
                 Nos ajude a entender seu momento para personalizar sua experiência.
               </DialogDescription>
             </DialogHeader>
@@ -138,10 +146,10 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-foreground text-center">
+              <DialogTitle className="text-xl md:text-2xl font-bold text-foreground text-center">
                 Garanta sua vaga agora!
               </DialogTitle>
-              <DialogDescription className="text-center text-muted-foreground">
+              <DialogDescription className="text-center text-muted-foreground text-sm">
                 Preencha seus dados abaixo para garantir acesso exclusivo.
               </DialogDescription>
             </DialogHeader>
@@ -154,7 +162,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={100}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="bg-white border-border text-gray-900 placeholder:text-gray-400"
                 />
               </div>
               <div className="space-y-2">
@@ -166,7 +174,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   maxLength={255}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="bg-white border-border text-gray-900 placeholder:text-gray-400"
                 />
               </div>
               <div className="space-y-2">
@@ -176,7 +184,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
                   placeholder="(11) 99999-9999"
                   value={whatsapp}
                   onChange={handleWhatsAppChange}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="bg-white border-border text-gray-900 placeholder:text-gray-400"
                 />
               </div>
               <Button
