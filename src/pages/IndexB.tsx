@@ -41,7 +41,7 @@ const IndexB = () => {
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
         <div className="relative z-10 text-center px-4 py-16 space-y-4 max-w-3xl">
           <h1 className="text-3xl md:text-5xl font-extrabold text-foreground leading-tight">
-            Descubra o Método que Está{" "}
+            Descubra o Método que está{" "}
             <span className="text-primary">Transformando Resultados</span>
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl">
