@@ -121,7 +121,7 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
           animating ? "opacity-0 translate-x-8" : "opacity-100 translate-x-0"
         )}
       >
-        <h3 className="text-lg font-semibold text-foreground text-center mb-5 leading-snug">
+        <h3 className="text-base md:text-lg font-semibold text-foreground text-center mb-4 md:mb-5 leading-snug">
           {question.question}
         </h3>
 
