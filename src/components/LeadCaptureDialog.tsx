@@ -30,6 +30,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const [whatsapp, setWhatsapp] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [leadId, setLeadId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatWhatsApp = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -61,8 +62,11 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
       return;
     }
 
+    setIsSubmitting(true);
     const source = getSource();
     const id = crypto.randomUUID();
+
+    console.log("Submitting lead...", { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, ""), source });
 
     const { error } = await supabase.from("leads").insert({
       id,
@@ -73,13 +77,16 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
     });
 
     if (error) {
-      console.error("Error inserting lead:", error);
-      toast({ title: "Erro ao salvar dados. Tente novamente.", variant: "destructive" });
+      console.error("Insert error:", JSON.stringify(error));
+      toast({ title: `Erro: ${error.message}`, variant: "destructive" });
+      setIsSubmitting(false);
       return;
     }
 
+    console.log("Lead inserted successfully:", id);
     setLeadId(id);
     setPhase("quiz");
+    setIsSubmitting(false);
   };
 
   const handleQuizComplete = async (answers: Record<string, string | string[]>) => {
@@ -174,9 +181,10 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
               </div>
               <Button
                 type="submit"
-                className="w-full text-lg py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold animate-pulse-glow"
+                disabled={isSubmitting}
+                className="w-full text-lg py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
               >
-                Quero Garantir Minha Vaga
+                {isSubmitting ? "Enviando..." : "Quero Garantir Minha Vaga"}
               </Button>
             </form>
           </>
