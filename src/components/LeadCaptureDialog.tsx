@@ -181,9 +181,10 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
               </div>
               <Button
                 type="submit"
-                className="w-full text-lg py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold animate-pulse-glow"
+                disabled={isSubmitting}
+                className="w-full text-lg py-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
               >
-                Quero Garantir Minha Vaga
+                {isSubmitting ? "Enviando..." : "Quero Garantir Minha Vaga"}
               </Button>
             </form>
           </>
