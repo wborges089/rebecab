@@ -30,6 +30,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const [whatsapp, setWhatsapp] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [leadId, setLeadId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatWhatsApp = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
