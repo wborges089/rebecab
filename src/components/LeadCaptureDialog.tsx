@@ -62,13 +62,15 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
     }
 
     const source = getSource();
+    const id = crypto.randomUUID();
 
-    const { data, error } = await supabase.from("leads").insert({
+    const { error } = await supabase.from("leads").insert({
+      id,
       name: name.trim(),
       email: email.trim(),
       whatsapp: whatsapp.replace(/\D/g, ""),
       source,
-    }).select("id").single();
+    });
 
     if (error) {
       console.error("Error inserting lead:", error);
@@ -76,7 +78,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
       return;
     }
 
-    setLeadId(data.id);
+    setLeadId(id);
     setPhase("quiz");
   };
 
