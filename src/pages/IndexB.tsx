@@ -35,11 +35,11 @@ const IndexB = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Hero with background photo */}
       <div
-        className="relative w-full min-h-[70vh] flex items-end justify-center bg-cover bg-no-repeat"
+        className="relative w-full min-h-[50vh] flex items-center justify-center bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center top' }}
       >
         <div className="absolute inset-0 bg-background/50" />
-        <div className="relative z-10 text-center px-4 pb-10 pt-4 space-y-4 max-w-3xl">
+        <div className="relative z-10 text-center px-4 py-6 space-y-4 max-w-3xl mt-[30vh]">
           <h1 className="md:text-4xl font-extrabold text-foreground leading-tight text-center font-serif text-xl">
             Se você é <span className="text-primary">médico ou advogado</span>, vou te mostrar o caminho para ter uma agenda cheia de pacientes e clientes qualificados e começar a <span className="text-primary">faturar com previsibilidade</span> todos os meses.
           </h1>
@@ -50,7 +50,7 @@ const IndexB = () => {
       </div>
 
       {/* Video + CTA */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6">
         <div className="w-full max-w-3xl space-y-8">
           <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-card shadow-2xl">
             {!isPlaying ? (
