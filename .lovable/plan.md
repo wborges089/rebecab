@@ -1,37 +1,24 @@
 
 
-## Ajustes no Formulario, Quiz e Fluxo Pos-Cadastro
+## Ajustes de Contraste no Quiz, Login e Foto de Fundo no Login
 
-### Problemas atuais
-1. **Inputs com texto branco sobre fundo escuro** — dificil de ler. O `bg-secondary` e um cinza sage (`hsl(60 6% 73%)`) mas o `text-foreground` e branco claro, criando baixo contraste.
-2. **Dialog nao se adapta bem ao mobile** — tamanho fixo `sm:max-w-md`, quiz pode cortar em telas pequenas.
-3. **Apos o quiz, nao ha mensagem de "Obrigado"** clara e o video continua visivel.
+### Problemas (conforme screenshots)
+1. **Quiz**: opcoes com texto cinza claro sobre fundo cinza escuro — baixo contraste. Checkboxes quase invisiveis.
+2. **Login**: inputs com `bg-secondary` e `text-foreground` (branco sobre cinza) — dificil de ler. Sem foto de fundo.
 
-### Correcoes planejadas
+### Correcoes
 
-**1. Inputs com melhor contraste (`LeadCaptureDialog.tsx`)**
-- Trocar `bg-secondary` dos inputs para `bg-white` com `text-gray-900` — fundo claro com texto escuro, legivel em qualquer tela.
-- Placeholders em `text-gray-400`.
+**1. `src/components/TypebotQuiz.tsx`** — Melhorar contraste das opcoes
+- Opcoes single-select: fundo `bg-white/90` com `text-gray-900` para texto escuro legivel
+- Opcoes multi-select: mesmo tratamento, com estado selecionado usando `bg-primary/20 border-primary text-gray-900`
+- Checkbox: adicionar classe para borda visivel (branca ou primary)
 
-**2. Dialog responsivo e interativo (`LeadCaptureDialog.tsx`)**
-- Adicionar classes responsivas ao DialogContent: `max-h-[90vh] overflow-y-auto w-[95vw] sm:max-w-md` para se adequar a telas pequenas.
-- Callback `onComplete` agora tambem recebe sinal para a pagina pai esconder o video.
-
-**3. Quiz responsivo (`TypebotQuiz.tsx`)**
-- Ajustar tamanhos de fonte e padding para mobile: `text-base md:text-lg`, `px-3 py-2.5 md:px-4 md:py-3`.
-- Scroll automatico dentro do dialog.
-
-**4. Tela de Obrigado melhorada (`LeadCaptureDialog.tsx`)**
-- Mensagem de agradecimento mais elaborada com icone e texto motivacional.
-
-**5. Video desaparece apos cadastro (`Index.tsx` e `IndexB.tsx`)**
-- Novo estado `formCompleted` controlado via callback do `LeadCaptureDialog`.
-- Quando `formCompleted = true`, a secao do video e substituida por uma mensagem de agradecimento em tela cheia.
-- Prop `onFormComplete` adicionada ao `LeadCaptureDialog`.
+**2. `src/pages/AdminLogin.tsx`** — Inputs claros + foto de fundo esmaecida
+- Adicionar a mesma foto da expert (`heroPhoto`) como background fullscreen com overlay escuro (`bg-background/70`)
+- Inputs: trocar `bg-secondary` para `bg-white` com `text-gray-900` — mesmo padrao do formulario de leads
+- Centralizar o formulario sobre o fundo esmaecido
 
 ### Arquivos editados
-- `src/components/LeadCaptureDialog.tsx` — inputs claros, dialog responsivo, callback onFormComplete
-- `src/components/TypebotQuiz.tsx` — tamanhos responsivos
-- `src/pages/Index.tsx` — estado formCompleted, esconde video
-- `src/pages/IndexB.tsx` — mesmo ajuste
+- `src/components/TypebotQuiz.tsx`
+- `src/pages/AdminLogin.tsx`
 
