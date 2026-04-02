@@ -52,8 +52,8 @@ const AdminLogin = () => {
     <div className="min-h-screen relative flex items-center justify-center px-4">
       {/* Background photo */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroPhoto})` }}
+        className="absolute inset-0 bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${heroPhoto})`, backgroundPosition: 'center 15%' }}
       />
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-background/75" />
