@@ -40,7 +40,7 @@ const IndexB = () => {
       >
         <div className="absolute inset-0 bg-background/50" />
         <div className="relative z-10 text-center px-4 pb-10 pt-4 space-y-4 max-w-3xl">
-          <h1 className="text-2xl md:text-4xl font-extrabold text-foreground leading-tight">
+          <h1 className="md:text-4xl font-extrabold text-foreground leading-tight text-center font-serif text-xl">
             Se você é <span className="text-primary">médico ou advogado</span>, vou te mostrar o caminho para ter uma agenda cheia de pacientes e clientes qualificados e começar a <span className="text-primary">faturar com previsibilidade</span> todos os meses.
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl">
