@@ -83,10 +83,7 @@ const LeadCaptureDialog = ({ open, onOpenChange }: LeadCaptureDialogProps) => {
   const handleQuizComplete = async (answers: Record<string, string | string[]>) => {
     if (!leadId) return;
 
-    // Update lead with quiz answers
-    await supabase.from("leads").update({ quiz_answers: answers as any }).eq("id", leadId);
-
-    // Classify lead with AI (fire and forget)
+    // Send quiz answers to edge function which will update and classify
     supabase.functions.invoke("classify-lead", {
       body: { leadId, quizAnswers: answers },
     }).catch((err) => console.error("Classification error:", err));
