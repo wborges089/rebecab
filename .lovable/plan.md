@@ -1,47 +1,37 @@
 
 
-## Diagnóstico e Correção do Formulário de Cadastro
+## Ajustes no Formulario, Quiz e Fluxo Pos-Cadastro
 
-### Problema identificado
-Os logs do console não mostram erros de submissão, o que indica que o formulário pode estar falhando silenciosamente ou o botão de submit não está disparando corretamente no mobile (viewport 390px).
+### Problemas atuais
+1. **Inputs com texto branco sobre fundo escuro** — dificil de ler. O `bg-secondary` e um cinza sage (`hsl(60 6% 73%)`) mas o `text-foreground` e branco claro, criando baixo contraste.
+2. **Dialog nao se adapta bem ao mobile** — tamanho fixo `sm:max-w-md`, quiz pode cortar em telas pequenas.
+3. **Apos o quiz, nao ha mensagem de "Obrigado"** clara e o video continua visivel.
 
-### Possíveis causas
-1. O insert no banco pode estar falhando sem feedback visual adequado ao usuário
-2. O botão "Quero Garantir Minha Vaga" com `animate-pulse-glow` pode estar com algum conflito de CSS que impede o clique no mobile
-3. O estado de loading não existe — se o usuário clica duas vezes, pode causar erro de email duplicado
+### Correcoes planejadas
 
-### Correções planejadas
+**1. Inputs com melhor contraste (`LeadCaptureDialog.tsx`)**
+- Trocar `bg-secondary` dos inputs para `bg-white` com `text-gray-900` — fundo claro com texto escuro, legivel em qualquer tela.
+- Placeholders em `text-gray-400`.
 
-**`src/components/LeadCaptureDialog.tsx`**:
-- Adicionar estado `isSubmitting` para desabilitar o botão durante o envio e evitar duplo-clique
-- Adicionar `console.log` antes e depois do insert para capturar o erro exato nos logs
-- Melhorar feedback de erro com a mensagem real do Supabase no toast
-- Garantir que o botão submit funcione corretamente removendo `animate-pulse-glow` do botão dentro do dialog (pode interferir com pointer events)
+**2. Dialog responsivo e interativo (`LeadCaptureDialog.tsx`)**
+- Adicionar classes responsivas ao DialogContent: `max-h-[90vh] overflow-y-auto w-[95vw] sm:max-w-md` para se adequar a telas pequenas.
+- Callback `onComplete` agora tambem recebe sinal para a pagina pai esconder o video.
 
-### Detalhes técnicos
+**3. Quiz responsivo (`TypebotQuiz.tsx`)**
+- Ajustar tamanhos de fonte e padding para mobile: `text-base md:text-lg`, `px-3 py-2.5 md:px-4 md:py-3`.
+- Scroll automatico dentro do dialog.
 
-```typescript
-// Adicionar estado de loading
-const [isSubmitting, setIsSubmitting] = useState(false);
+**4. Tela de Obrigado melhorada (`LeadCaptureDialog.tsx`)**
+- Mensagem de agradecimento mais elaborada com icone e texto motivacional.
 
-// No handleSubmit:
-setIsSubmitting(true);
-console.log("Submitting lead...", { name, email, whatsapp, source });
+**5. Video desaparece apos cadastro (`Index.tsx` e `IndexB.tsx`)**
+- Novo estado `formCompleted` controlado via callback do `LeadCaptureDialog`.
+- Quando `formCompleted = true`, a secao do video e substituida por uma mensagem de agradecimento em tela cheia.
+- Prop `onFormComplete` adicionada ao `LeadCaptureDialog`.
 
-const { error } = await supabase.from("leads").insert({...});
-
-if (error) {
-  console.error("Insert error:", JSON.stringify(error));
-  setIsSubmitting(false);
-  // mostrar error.message no toast
-  return;
-}
-
-// No botão:
-disabled={isSubmitting}
-// Texto muda para "Enviando..." enquanto submete
-```
-
-### Arquivo editado
-- `src/components/LeadCaptureDialog.tsx`
+### Arquivos editados
+- `src/components/LeadCaptureDialog.tsx` — inputs claros, dialog responsivo, callback onFormComplete
+- `src/components/TypebotQuiz.tsx` — tamanhos responsivos
+- `src/pages/Index.tsx` — estado formCompleted, esconde video
+- `src/pages/IndexB.tsx` — mesmo ajuste
 
