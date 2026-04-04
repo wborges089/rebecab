@@ -66,7 +66,6 @@ const LeadCaptureDialog = ({ open, onOpenChange, onFormComplete }: LeadCaptureDi
 
     setIsSubmitting(true);
     const source = getSource();
-    const id = crypto.randomUUID();
 
     const { data, error } = await supabase.functions.invoke("submit-lead", {
       body: { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, ""), source },
