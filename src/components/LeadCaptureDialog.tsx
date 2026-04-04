@@ -68,25 +68,17 @@ const LeadCaptureDialog = ({ open, onOpenChange, onFormComplete }: LeadCaptureDi
     const source = getSource();
     const id = crypto.randomUUID();
 
-    console.log("Submitting lead...", { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, ""), source });
-
-    const { error } = await supabase.from("leads").insert({
-      id,
-      name: name.trim(),
-      email: email.trim(),
-      whatsapp: whatsapp.replace(/\D/g, ""),
-      source,
+    const { data, error } = await supabase.functions.invoke("submit-lead", {
+      body: { name: name.trim(), email: email.trim(), whatsapp: whatsapp.replace(/\D/g, ""), source },
     });
 
-    if (error) {
-      console.error("Insert error:", JSON.stringify(error));
-      toast({ title: `Erro: ${error.message}`, variant: "destructive" });
+    if (error || !data?.id) {
+      toast({ title: "Erro ao enviar dados. Tente novamente.", variant: "destructive" });
       setIsSubmitting(false);
       return;
     }
 
-    console.log("Lead inserted successfully:", id);
-    setLeadId(id);
+    setLeadId(data.id);
     setPhase("quiz");
     setIsSubmitting(false);
   };
