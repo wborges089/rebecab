@@ -104,6 +104,7 @@ const Index = () => {
                 }`}
               >
                 <Button
+                  id="cta-btn"
                   size="lg"
                   onClick={() => setDialogOpen(true)}
                   className="text-lg md:text-xl px-10 py-7 font-bold bg-primary text-primary-foreground hover:bg-primary/90 animate-pulse-glow rounded-xl"
