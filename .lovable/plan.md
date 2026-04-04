@@ -1,60 +1,45 @@
 
 
-## Auditoria SEO e Performance — Paginas A (`/`) e B (`/b`)
+## Preparar o Projeto para Deploy em Subdomínios na Hostinger
 
-### Problemas encontrados
+### Situação atual
 
-**SEO**
-1. `<html lang="en">` — deveria ser `pt-BR`
-2. `<title>Lovable App</title>` — generico, sem relacao com o conteudo
-3. `og:title` e `twitter:title` = "Lovable App" — sem valor para compartilhamento
-4. `og:description` e `description` = "VSL Rebeca" — nao e descritivo para o usuario final
-5. `meta author` = "Lovable" — deveria ser o nome da expert/marca
-6. Sem `sitemap.xml`
-7. `robots.txt` sem referencia ao sitemap
-8. Sem `react-helmet-async` — ambas as paginas (A e B) compartilham os mesmos meta tags do `index.html`, impossibilitando SEO diferenciado por rota
-9. Sem `canonical` URL
-10. Imagem hero sem `width`/`height` (CLS)
-11. Sem `<meta name="theme-color">`
+O projeto é um SPA único com React Router. Todas as páginas (A, B, Admin) estão no mesmo bundle. Para subdomínios independentes na Hostinger, cada um precisa funcionar como uma aplicação standalone que serve `index.html` na raiz `/`.
 
-**Performance / Carregamento**
-1. Nenhuma rota usa `React.lazy()` — Admin, AdminLogin, LeadCaptureDialog sao carregados no bundle inicial mesmo que o usuario so visite `/`
-2. Imagem hero (PNG) importada como asset estatico sem otimizacao — poderia ser WebP ou ter `loading="eager"` explicito com dimensoes fixas
-3. Script Vturb injetado no `<head>` via `document.head.appendChild` — ok (async), mas sem `dns-prefetch` / `preconnect` para `scripts.converteai.net`
+### Abordagem: Detecção de subdomínio no Router
 
-### Plano de correcoes
+Em vez de criar 3 builds separados (o que complicaria a manutenção), a abordagem mais prática é manter um único build e usar detecção de subdomínio no `App.tsx` para renderizar a página correta.
 
-**1. `index.html`** — Meta tags e hints de performance
-- Trocar `lang="en"` para `lang="pt-BR"`
-- Title: "Fature 3vezes mais — Funil Automatico para Medicos e Advogados"
-- Description: frase descritiva real do servico
-- og:title, og:description, twitter:title, twitter:description atualizados
-- Adicionar `<link rel="canonical" href="https://rebecab.lovable.app/" />`
-- Adicionar `<meta name="theme-color" content="#222419" />`
-- Adicionar `<link rel="dns-prefetch" href="https://scripts.converteai.net" />` e `<link rel="preconnect" href="https://scripts.converteai.net" />`
-- Remover TODOs e autor "Lovable"
+**Estrutura de subdomínios:**
+- `paginaa.seudominio.com` → Página A (Index)
+- `paginab.seudominio.com` → Página B (IndexB)
+- `admin.seudominio.com` → Admin + AdminLogin
 
-**2. `public/sitemap.xml`** — Novo arquivo
-- Listar `/` e `/b` com lastmod e priority
+### Alterações
 
-**3. `public/robots.txt`** — Adicionar referencia ao sitemap
-- `Sitemap: https://rebecab.lovable.app/sitemap.xml`
+**1. `src/App.tsx`** — Detectar subdomínio e renderizar rotas condicionais
 
-**4. `src/App.tsx`** — Lazy loading de rotas
-- `React.lazy()` para `Admin`, `AdminLogin`, `NotFound`
-- Envolver com `<Suspense>` para nao bloquear o bundle das paginas de vendas
+```text
+hostname = window.location.hostname
 
-**5. `src/pages/Index.tsx`** e `src/pages/IndexB.tsx`** — Otimizacao de imagem
-- Adicionar `width` e `height` explicitos na tag `<img>` da hero (evita CLS)
-- Adicionar `fetchPriority="high"` na imagem hero
+Se contém "paginaa" → renderiza só <Index /> na raiz
+Se contém "paginab" → renderiza só <IndexB /> na raiz
+Se contém "admin"   → renderiza <AdminLogin /> em /login e <Admin /> em /
+Default (localhost)  → mantém todas as rotas como hoje
+```
+
+**2. `index.html`** — Nenhuma alteração necessária (cada subdomínio servirá o mesmo `index.html`)
+
+**3. Configuração na Hostinger** — Você fará isso manualmente:
+- Criar 3 subdomínios apontando para a mesma pasta de build (ou 3 cópias do `dist/`)
+- Configurar redirecionamento SPA (404 → index.html) em cada subdomínio
 
 ### Arquivos editados
-| Arquivo | Acao |
+| Arquivo | Ação |
 |---|---|
-| `index.html` | Meta tags SEO, preconnect, theme-color, lang |
-| `public/sitemap.xml` | Novo |
-| `public/robots.txt` | Adicionar sitemap |
-| `src/App.tsx` | Lazy loading rotas admin |
-| `src/pages/Index.tsx` | width/height na img, fetchPriority |
-| `src/pages/IndexB.tsx` | fetchPriority no background (preload hint) |
+| `src/App.tsx` | Lógica de detecção de subdomínio no router |
+
+### Alternativa: 3 builds separados
+
+Se preferir builds totalmente independentes (bundles menores por subdomínio), seria necessário criar 3 entry points HTML e 3 configs Vite. Isso reduz o tamanho do bundle por subdomínio mas triplica a complexidade de manutenção. A abordagem de detecção de subdomínio é mais simples e recomendada.
 
