@@ -78,7 +78,7 @@ const Index = () => {
 
             {/* CTA Button */}
             <div className="flex flex-col items-center gap-3 min-h-[80px]">
-              {isPlaying && !showCTA && (
+              {!showCTA && (
                 <p className="text-muted-foreground text-sm animate-pulse">
                   Continue assistindo... uma oferta especial está chegando ⏳
                 </p>
