@@ -4,7 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 import heroPhoto from "@/assets/photo-hero.png";
 
-const REVEAL_SECONDS = 60;
+const REVEAL_SECONDS = 300;
 
 const VTURB_SCRIPT_URL = "https://scripts.converteai.net/ed0d119e-2b6d-499b-a28e-3c65bc0897aa/players/69cfbd50f5c99568d7aeaa9e/v4/player.js";
 const VTURB_PLAYER_ID = "vid-69cfbd50f5c99568d7aeaa9e";
