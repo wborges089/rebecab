@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 import heroPhoto from "@/assets/photo-hero.png";
 
