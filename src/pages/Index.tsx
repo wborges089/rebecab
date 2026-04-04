@@ -36,7 +36,7 @@ const Index = () => {
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8 px-4 pt-12 pb-6 max-w-5xl mx-auto w-full">
         <div className="flex-1 text-center lg:text-left space-y-4">
           <h1 className="text-3xl md:text-5xl font-extrabold text-foreground leading-tight">
-            Fature 3x mais em seu consultório com{" "}
+            Fature 3Vezes mais em seu consultório com{" "}
             <span className="text-primary">funil de aquisição de lead automático</span>
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl max-w-xl">
