@@ -46,7 +46,10 @@ const Index = () => {
         <div className="flex-shrink-0">
           <img
             src={heroPhoto}
-            alt="Especialista"
+            alt="Especialista em funis automáticos para médicos e advogados"
+            width={256}
+            height={256}
+            fetchPriority="high"
             className="w-48 h-48 md:w-64 md:h-64 rounded-full object-cover object-top border-4 border-primary shadow-xl"
           />
         </div>
