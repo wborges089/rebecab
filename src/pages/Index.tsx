@@ -1,36 +1,34 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 import heroPhoto from "@/assets/photo-hero.png";
 
 const REVEAL_SECONDS = 60;
 
+const VTURB_SCRIPT_URL = "https://scripts.converteai.net/ed0d119e-2b6d-499b-a28e-3c65bc0897aa/players/69cfbd50f5c99568d7aeaa9e/v4/player.js";
+const VTURB_PLAYER_ID = "vid-69cfbd50f5c99568d7aeaa9e";
+
 const Index = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
   const [showCTA, setShowCTA] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formCompleted, setFormCompleted] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
 
-  const handlePlay = useCallback(() => {
-    setIsPlaying(true);
+  // Load Vturb script
+  useEffect(() => {
+    if (document.querySelector(`script[src="${VTURB_SCRIPT_URL}"]`)) return;
+    const s = document.createElement("script");
+    s.src = VTURB_SCRIPT_URL;
+    s.async = true;
+    document.head.appendChild(s);
   }, []);
 
+  // Reveal CTA after REVEAL_SECONDS
   useEffect(() => {
-    if (!isPlaying || showCTA) return;
-    const interval = setInterval(() => {
-      setElapsed((prev) => {
-        const next = prev + 1;
-        if (next >= REVEAL_SECONDS) {
-          setShowCTA(true);
-          clearInterval(interval);
-        }
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isPlaying, showCTA]);
+    const timer = setTimeout(() => setShowCTA(true), REVEAL_SECONDS * 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -69,31 +67,18 @@ const Index = () => {
           </div>
         ) : (
           <div className="w-full max-w-3xl space-y-8">
-            {/* Video Player Placeholder */}
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border bg-card shadow-2xl">
-              {!isPlaying ? (
-                <button
-                  onClick={handlePlay}
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-card/80 backdrop-blur-sm cursor-pointer group transition-all"
-                >
-                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                    <Play className="w-10 h-10 text-primary ml-1" />
-                  </div>
-                  <span className="text-muted-foreground text-sm">Clique para assistir</span>
-                </button>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-card">
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-muted-foreground text-sm">Reproduzindo vídeo...</p>
-                  </div>
-                </div>
-              )}
+            {/* Vturb Player */}
+            <div ref={playerRef} className="w-full rounded-xl overflow-hidden border border-border shadow-2xl">
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: `<vturb-smartplayer id="${VTURB_PLAYER_ID}" style="display:block;margin:0 auto;width:100%;"></vturb-smartplayer>`
+                }}
+              />
             </div>
 
             {/* CTA Button */}
             <div className="flex flex-col items-center gap-3 min-h-[80px]">
-              {isPlaying && !showCTA && (
+              {!showCTA && (
                 <p className="text-muted-foreground text-sm animate-pulse">
                   Continue assistindo... uma oferta especial está chegando ⏳
                 </p>
