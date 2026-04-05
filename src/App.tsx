@@ -15,8 +15,8 @@ const queryClient = new QueryClient();
 
 const getSubdomain = () => {
   const hostname = window.location.hostname;
-  if (hostname.includes("paginaa")) return "paginaa";
-  if (hostname.includes("paginab")) return "paginab";
+  if (hostname.includes("funilpacientesa")) return "funilpacientesa"
+  if (hostname.includes("funilpacientesb")) return "funilpacientesb";
   if (hostname.includes("admin")) return "admin";
   return null;
 };
@@ -32,10 +32,10 @@ const App = () => {
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>}>
             <Routes>
-              {subdomain === "paginaa" && (
+              {subdomain === "funilpacientesa" && (
                 <Route path="*" element={<Index />} />
               )}
-              {subdomain === "paginab" && (
+              {subdomain === "funilpacientesb" && (
                 <Route path="*" element={<IndexB />} />
               )}
               {subdomain === "admin" && (
