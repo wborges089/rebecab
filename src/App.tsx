@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,23 +38,16 @@ const App = () => {
               {subdomain === "funilpacientesb" && (
                 <Route path="*" element={<IndexB />} />
               )}
-              {subdomain === "admin" && (
-                <>
-                  <Route path="/" element={<Admin />} />
-                  <Route path="/login" element={<AdminLogin />} />
-                  <Route path="*" element={<NotFound />} />
-                </>
-              )}
-              {!subdomain && (
-                <>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/b" element={<IndexB />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="*" element={<NotFound />} />
-                </>
-              )}
-            </Routes>
+                            {subdomain === "admin" && <Route path="/" element={<Navigate to="/admin/login" replace />} />}
+                                          {subdomain === "admin" && <Route path="/admin" element={<Admin />} />}
+                                                        {subdomain === "admin" && <Route path="/admin/login" element={<AdminLogin />} />}
+                                                                      {subdomain === "admin" && <Route path="*" element={<NotFound />} />}
+                                                                                    {!subdomain && <Route path="/" element={<Index />} />}
+                                                                                                  {!subdomain && <Route path="/b" element={<IndexB />} />}
+                                                                                                                {!subdomain && <Route path="/admin" element={<Admin />} />}
+                                                                                                                              {!subdomain && <Route path="/admin/login" element={<AdminLogin />} />}
+                                                                                                                                            {!subdomain && <Route path="*" element={<NotFound />} />}
+                                                                                                                                            Routes>
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
