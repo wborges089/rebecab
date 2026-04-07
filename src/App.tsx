@@ -32,22 +32,12 @@ const App = () => {
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>}>
             <Routes>
-              {subdomain === "funilpacientesa" && (
-                <Route path="*" element={<Index />} />
-              )}
-              {subdomain === "funilpacientesb" && (
-                <Route path="*" element={<IndexB />} />
-              )}
-                            {subdomain === "admin" && <Route path="/" element={<Navigate to="/admin/login" replace />} />}
-                                          {subdomain === "admin" && <Route path="/admin" element={<Admin />} />}
-                                                        {subdomain === "admin" && <Route path="/admin/login" element={<AdminLogin />} />}
-                                                                      {subdomain === "admin" && <Route path="*" element={<NotFound />} />}
-                                                                                    {!subdomain && <Route path="/" element={<Index />} />}
-                                                                                                  {!subdomain && <Route path="/b" element={<IndexB />} />}
-                                                                                                                {!subdomain && <Route path="/admin" element={<Admin />} />}
-                                                                                                                              {!subdomain && <Route path="/admin/login" element={<AdminLogin />} />}
-                                                                                                                                            {!subdomain && <Route path="*" element={<NotFound />} />}
-                                                                                                                                            Routes>
+                            <Route path="/" element={subdomain === "admin" ? <Navigate to="/admin/login" replace /> : <Index />} />
+                                          <Route path="/b" element={<IndexB />} />
+                                                        <Route path="/admin" element={<Admin />} />
+                                                                      <Route path="/admin/login" element={<AdminLogin />} />
+                                                                                    <Route path="*" element={subdomain === "funilpacientesa" ? <Index /> : subdomain === "funilpacientesb" ? <IndexB /> : <NotFound />} />
+                                                                                                </Routes>
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
