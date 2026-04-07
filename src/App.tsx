@@ -32,7 +32,7 @@ const App = () => {
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>}>
             <Routes>
-                            <Route path="/" element={subdomain === "admin" ? <Navigate to="/admin/login" replace /> : <Index />} />
+                                          <Route path="/" element={subdomain === "admin" ? <Navigate to="/admin/login" replace /> : subdomain === "funilpacientesb" ? <IndexB /> : <Index />} />
                                           <Route path="/b" element={<IndexB />} />
                                                         <Route path="/admin" element={<Admin />} />
                                                                       <Route path="/admin/login" element={<AdminLogin />} />
