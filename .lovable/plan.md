@@ -1,45 +1,33 @@
 
 
-## Preparar o Projeto para Deploy em Subdomínios na Hostinger
+## Exportar SQL completo para migração ao Supabase nativo
 
-### Situação atual
+### O que será gerado
 
-O projeto é um SPA único com React Router. Todas as páginas (A, B, Admin) estão no mesmo bundle. Para subdomínios independentes na Hostinger, cada um precisa funcionar como uma aplicação standalone que serve `index.html` na raiz `/`.
+Um arquivo `.sql` único com toda a estrutura do banco atual, pronto para colar no SQL Editor de um novo projeto Supabase.
 
-### Abordagem: Detecção de subdomínio no Router
+### Conteúdo do arquivo
 
-Em vez de criar 3 builds separados (o que complicaria a manutenção), a abordagem mais prática é manter um único build e usar detecção de subdomínio no `App.tsx` para renderizar a página correta.
+1. **Enum** `app_role` (admin, moderator, user)
+2. **Tabelas**: `sales_pages`, `leads`, `deals`, `traffic_entries`, `user_roles` — com colunas, defaults e tipos exatos
+3. **RLS**: `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + todas as 19 policies existentes
+4. **Function**: `has_role(_user_id, _role)` security definer
+5. **Realtime**: publication para tabelas que usam (se aplicável)
+6. **Comentários** explicando cada seção
 
-**Estrutura de subdomínios:**
-- `paginaa.seudominio.com` → Página A (Index)
-- `paginab.seudominio.com` → Página B (IndexB)
-- `admin.seudominio.com` → Admin + AdminLogin
+### Arquivo gerado
 
-### Alterações
+`/mnt/documents/database_schema.sql` — pronto para download
 
-**1. `src/App.tsx`** — Detectar subdomínio e renderizar rotas condicionais
+### Edge Functions (manual)
 
-```text
-hostname = window.location.hostname
+As Edge Functions (`submit-lead` e `classify-lead`) não fazem parte do SQL. Elas precisam ser copiadas manualmente para `supabase/functions/` no novo projeto e deployadas via CLI (`supabase functions deploy`). O código já está no repositório Git.
 
-Se contém "paginaa" → renderiza só <Index /> na raiz
-Se contém "paginab" → renderiza só <IndexB /> na raiz
-Se contém "admin"   → renderiza <AdminLogin /> em /login e <Admin /> em /
-Default (localhost)  → mantém todas as rotas como hoje
-```
+### Passos pós-exportação
 
-**2. `index.html`** — Nenhuma alteração necessária (cada subdomínio servirá o mesmo `index.html`)
-
-**3. Configuração na Hostinger** — Você fará isso manualmente:
-- Criar 3 subdomínios apontando para a mesma pasta de build (ou 3 cópias do `dist/`)
-- Configurar redirecionamento SPA (404 → index.html) em cada subdomínio
-
-### Arquivos editados
-| Arquivo | Ação |
-|---|---|
-| `src/App.tsx` | Lógica de detecção de subdomínio no router |
-
-### Alternativa: 3 builds separados
-
-Se preferir builds totalmente independentes (bundles menores por subdomínio), seria necessário criar 3 entry points HTML e 3 configs Vite. Isso reduz o tamanho do bundle por subdomínio mas triplica a complexidade de manutenção. A abordagem de detecção de subdomínio é mais simples e recomendada.
+1. Criar novo projeto no Supabase
+2. Abrir SQL Editor → colar o conteúdo do `.sql` → executar
+3. Copiar a pasta `supabase/functions/` para o novo projeto
+4. Configurar os secrets (`LOVABLE_API_KEY`) no novo projeto
+5. Atualizar as variáveis de ambiente no frontend (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
 
