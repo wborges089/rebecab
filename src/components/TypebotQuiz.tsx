@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface QuizQuestion {
@@ -9,9 +10,16 @@ interface QuizQuestion {
   question: string;
   options: string[];
   multiSelect?: boolean;
+  allowOther?: boolean;
 }
 
 const QUESTIONS: QuizQuestion[] = [
+  {
+    id: "area",
+    question: "Qual é a sua área de atuação?",
+    options: ["Médico", "Advogado", "Outro"],
+    allowOther: true,
+  },
   {
     id: "aquisicao",
     question: "Hoje, como você consegue novos pacientes/clientes?",
@@ -71,6 +79,8 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [multiSelections, setMultiSelections] = useState<string[]>([]);
   const [animating, setAnimating] = useState(false);
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [otherText, setOtherText] = useState("");
 
   const question = QUESTIONS[currentIndex];
   const progress = ((currentIndex) / QUESTIONS.length) * 100;
@@ -81,6 +91,8 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
       if (currentIndex < QUESTIONS.length - 1) {
         setCurrentIndex((i) => i + 1);
         setMultiSelections([]);
+        setShowOtherInput(false);
+        setOtherText("");
       } else {
         onComplete(updatedAnswers);
       }
@@ -89,7 +101,18 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
   };
 
   const handleSingleSelect = (option: string) => {
+    if (question.allowOther && option === "Outro") {
+      setShowOtherInput(true);
+      return;
+    }
     const updated = { ...answers, [question.id]: option };
+    setAnswers(updated);
+    advance(updated);
+  };
+
+  const handleOtherContinue = () => {
+    if (!otherText.trim()) return;
+    const updated = { ...answers, [question.id]: otherText.trim() };
     setAnswers(updated);
     advance(updated);
   };
@@ -148,6 +171,33 @@ const TypebotQuiz = ({ onComplete }: TypebotQuizProps) => {
                   </div>
                 </button>
               ))
+            : showOtherInput
+            ? (
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => { setShowOtherInput(false); setOtherText(""); }}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← Voltar
+                </button>
+                <Input
+                  placeholder="Digite sua área de atuação..."
+                  value={otherText}
+                  onChange={(e) => setOtherText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleOtherContinue()}
+                  autoFocus
+                  className="bg-white text-gray-900"
+                />
+                <Button
+                  onClick={handleOtherContinue}
+                  disabled={!otherText.trim()}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Continuar
+                </Button>
+              </div>
+            )
             : question.options.map((option) => (
                 <button
                   key={option}
