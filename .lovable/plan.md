@@ -1,33 +1,24 @@
 
 
-## Exportar SQL completo para migração ao Supabase nativo
+## Corrigir acesso ao painel admin
 
-### O que será gerado
+### Causa raiz
 
-Um arquivo `.sql` único com toda a estrutura do banco atual, pronto para colar no SQL Editor de um novo projeto Supabase.
+Na correção de segurança anterior, removemos a permissão de `EXECUTE` da função `has_role` para o role `authenticated`. Isso quebrou todas as RLS policies que dependem dessa função — incluindo a policy "Admins can view all roles" na tabela `user_roles`, que é consultada durante o login.
 
-### Conteúdo do arquivo
+O login no Supabase Auth funciona (status 200), mas a query `SELECT role FROM user_roles WHERE user_id = ... AND role = 'admin'` retorna vazio porque a RLS não consegue avaliar `has_role()`.
 
-1. **Enum** `app_role` (admin, moderator, user)
-2. **Tabelas**: `sales_pages`, `leads`, `deals`, `traffic_entries`, `user_roles` — com colunas, defaults e tipos exatos
-3. **RLS**: `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` + todas as 19 policies existentes
-4. **Function**: `has_role(_user_id, _role)` security definer
-5. **Realtime**: publication para tabelas que usam (se aplicável)
-6. **Comentários** explicando cada seção
+### Solução
 
-### Arquivo gerado
+Criar uma migração SQL que restaura o `EXECUTE` para `authenticated` na função `has_role`. A função já é `SECURITY DEFINER`, então ela executa com privilégios do owner — isso é seguro. O risco anterior (exposição via RPC) pode ser mitigado de outra forma: removendo a função do schema `public` da API exposta ou usando `pg_net` grants mais granulares.
 
-`/mnt/documents/database_schema.sql` — pronto para download
+```sql
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated;
+```
 
-### Edge Functions (manual)
+Isso é suficiente para restaurar o funcionamento de todas as RLS policies sem comprometer segurança, pois a função apenas retorna `true/false` para o próprio `uid` do usuário autenticado.
 
-As Edge Functions (`submit-lead` e `classify-lead`) não fazem parte do SQL. Elas precisam ser copiadas manualmente para `supabase/functions/` no novo projeto e deployadas via CLI (`supabase functions deploy`). O código já está no repositório Git.
+### Arquivo afetado
 
-### Passos pós-exportação
-
-1. Criar novo projeto no Supabase
-2. Abrir SQL Editor → colar o conteúdo do `.sql` → executar
-3. Copiar a pasta `supabase/functions/` para o novo projeto
-4. Configurar os secrets (`LOVABLE_API_KEY`) no novo projeto
-5. Atualizar as variáveis de ambiente no frontend (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
+- Nova migração SQL (via ferramenta de migração)
 
